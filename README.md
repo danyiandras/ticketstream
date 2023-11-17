@@ -53,7 +53,7 @@ To create the docker image:
 
     mvn spring-boot:build-image
 
-To run the docker image
+To run the docker image (this command also starts a Cassandra and a RabbitMQ container)
 
     cd scripts/docker-compose/
     docker-compose up -d
