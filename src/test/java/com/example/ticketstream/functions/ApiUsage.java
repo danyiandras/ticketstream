@@ -138,4 +138,49 @@ class ApiTest {
 	    log.info("TEST >> screeningBuyTickets: {}", myTickets);
 	}
 	
+	@Test
+	@SuppressWarnings("unchecked")
+	void buyTickets() {
+		String movieIWantToSee = "The Godfather";
+		String theaterIWantToGo = "Theater One";
+
+	    InTimeIntervallDto movieGetMoviesPlayingMessage = InTimeIntervallDto.builder().start(searchStart).end(searchEnd).build();
+		List<MovieDto> movies = 
+				(List<MovieDto>) rabbitTemplate.convertSendAndReceive("movieGetMoviesPlaying.rpc", "rpc", movieGetMoviesPlayingMessage);
+	    
+	    var movieId = 
+	    		movies.stream().filter(m -> movieIWantToSee.equals(m.getTitle())).findAny().orElseThrow().getId();
+
+		InTimeIntervallMovieIdDto theaterGetTheatersPlayingMovieMessage = 
+				InTimeIntervallMovieIdDto.builder().start(searchStart).end(searchEnd).movieId(movieId).build();
+		List<TheaterDto> theaters = (List<TheaterDto>) rabbitTemplate.convertSendAndReceive("theaterGetTheatersPlayingMovie.rpc", "rpc", theaterGetTheatersPlayingMovieMessage);
+
+	    var theaterId = 
+	    		theaters.stream().filter(t -> theaterIWantToGo.equals(t.getName())).findAny().orElseThrow().getId();
+
+	    InTimeIntervallMovieIdTheaterIdDto message = InTimeIntervallMovieIdTheaterIdDto.builder()
+	    		.start(searchStart).end(searchEnd).movieId(movieId).theaterId(theaterId).build();
+		List<ScreeningDto> screenings = (List<ScreeningDto>) rabbitTemplate.convertSendAndReceive("screeningGetScreeningsPlayingMovieInTheater.rpc", "rpc", message);
+		
+		ScreeningDto screeningIWantToGo = screenings.stream().findAny().orElseThrow();
+		final Set<Integer> soldSeats = screeningIWantToGo.getSoldSeats();
+		
+	    InTheaterName theaterMessage = InTheaterName.builder().name("Theater One").build();
+	    TheaterDto theater = (TheaterDto) rabbitTemplate.convertSendAndReceive("theaterGetByName.rpc", "rpc", theaterMessage);
+		
+	    Map<Integer, SeatDto> freeSeats = theater.getSeats().entrySet().stream()
+	    	.filter(e -> !soldSeats.contains(e.getKey()))
+	    	.collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue));
+	    
+	    SeatDto seatIWantToSit = freeSeats.get(15);
+	    
+	    InTicketOrderDto ticketOrder = InTicketOrderDto.builder()
+	    		.startTime(screeningIWantToGo.getStartTime())
+	    		.endTime(screeningIWantToGo.getEndTime())
+	    		.screeningId(screeningIWantToGo.getId())
+	    		.seatIds(Set.of(seatIWantToSit.getId()))
+	    		.build();
+	    List<TicketDto> myTickets = (List<TicketDto>) rabbitTemplate.convertSendAndReceive("screeningBuyTickets.rpc", "rpc", ticketOrder);
+	    log.info("TEST >> screeningBuyTickets: {}", myTickets);
+	}
 }

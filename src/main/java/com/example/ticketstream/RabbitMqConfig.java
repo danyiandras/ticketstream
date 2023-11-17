@@ -28,6 +28,23 @@ public class RabbitMqConfig {
     }
     
     @Bean
+    Queue movieGetMoviesPlayingQueue() {
+        return new Queue("movieGetMoviesPlaying.rpc.requests");
+    }
+
+    @Bean
+    DirectExchange movieGetMoviesPlayingExchange() {
+        return new DirectExchange("movieGetMoviesPlaying.rpc");
+    }
+
+    @Bean
+    Binding movieGetMoviesPlayingBinding(DirectExchange movieGetMoviesPlayingExchange, Queue movieGetMoviesPlayingQueue) {
+        return BindingBuilder.bind(movieGetMoviesPlayingQueue)
+            .to(movieGetMoviesPlayingExchange)
+            .with("rpc");
+    }
+    
+    @Bean
     Queue theaterGetByNameQueue() {
         return new Queue("theaterGetByName.rpc.requests");
     }
@@ -41,6 +58,23 @@ public class RabbitMqConfig {
     Binding theaterGetByNameBinding(DirectExchange theaterGetByNameExchange, Queue theaterGetByNameQueue) {
         return BindingBuilder.bind(theaterGetByNameQueue)
             .to(theaterGetByNameExchange)
+            .with("rpc");
+    }
+    
+    @Bean
+    Queue theaterGetTheatersPlayingMovieQueue() {
+        return new Queue("theaterGetTheatersPlayingMovie.rpc.requests");
+    }
+
+    @Bean
+    DirectExchange theaterGetTheatersPlayingMovieExchange() {
+        return new DirectExchange("theaterGetTheatersPlayingMovie.rpc");
+    }
+
+    @Bean
+    Binding theaterGetTheatersPlayingMovieBinding(DirectExchange theaterGetTheatersPlayingMovieExchange, Queue theaterGetTheatersPlayingMovieQueue) {
+        return BindingBuilder.bind(theaterGetTheatersPlayingMovieQueue)
+            .to(theaterGetTheatersPlayingMovieExchange)
             .with("rpc");
     }
     

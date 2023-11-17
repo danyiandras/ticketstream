@@ -20,12 +20,17 @@ import lombok.NoArgsConstructor;
 public class TheaterDto implements EntityDto<Theater, TheaterDto> {
 	private static final long serialVersionUID = 1L;
 
+	public TheaterDto(UUID id, String name) {
+		this.id = id;
+		this.name = name;
+	}
+	
 	@NotNull
 	UUID id;
 	@Size(min=1, max=256)
 	@NotNull
 	String name;
-	@NotNull
+
 	private Map<Integer, SeatDto> seats;
 
 	public Theater convertToEntity(TheaterService theaterService, ModelMapper mapper) {
