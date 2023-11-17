@@ -12,3 +12,7 @@ spring:
   cloud:
     function:
       definition: movieGetByTitle
+  rabbitmq:
+    host: ${TICKET_STREAM_RABBITMQ_HOST:localhost}
+    username: myuser
+    password: secret

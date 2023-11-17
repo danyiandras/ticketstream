@@ -3,6 +3,7 @@ package com.example.ticketstream;
 import java.util.Collections;
 import java.util.List;
 
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.data.cassandra.config.AbstractCassandraConfiguration;
 import org.springframework.data.cassandra.config.SchemaAction;
@@ -11,6 +12,9 @@ import org.springframework.data.cassandra.core.cql.keyspace.KeyspaceOption;
 
 @Configuration
 public class CassandraConfiguration extends AbstractCassandraConfiguration {
+
+	@Value("${TICKET_STREAM_CASSANDRA_CONTACTPOINT:localhost}")
+	private String contactPoint;
 
 	private String ticketStreamKeyspace = "ticketstream";
 
@@ -21,7 +25,7 @@ public class CassandraConfiguration extends AbstractCassandraConfiguration {
 
 	@Override
 	protected String getContactPoints() {
-		return "apachecassandra";
+		return contactPoint;
 	}
 
 	@Override

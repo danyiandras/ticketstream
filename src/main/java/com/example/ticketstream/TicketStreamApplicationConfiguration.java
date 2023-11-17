@@ -9,7 +9,7 @@ import org.springframework.retry.annotation.EnableRetry;
 @Configuration
 public class TicketStreamApplicationConfiguration {
 
-    @Bean
+	@Bean
     ModelMapper modelMapper() {
 	    return new ModelMapper();
 	}
