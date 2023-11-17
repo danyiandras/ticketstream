@@ -1,0 +1,14 @@
+#logging:
+#  level:
+#    org:
+#      springframework:
+#        amqp: debug
+ticketstream:
+  create-ticket-retry: 3
+spring:
+  cassandra:
+    local-datacenter: datacenter1
+    schema-action: CREATE_IF_NOT_EXISTS
+  cloud:
+    function:
+      definition: movieGetByTitle
