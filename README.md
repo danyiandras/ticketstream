@@ -13,7 +13,7 @@ just blocking the required number of particular seats.
   * Select a theater
   * See available seats (e.g., a1, a2, a3) for the selected theater & movie.
   * You can assume that all theaters have 20 seats capacity.
-  * Book one or more of the available seats. Service should be able to handlemultiple requests simultaneously (no over-bookings)
+  * Book one or more of the available seats. Service should be able to handle multiple requests simultaneously (no over-bookings)
 
 ## EXPECTATIONS:
   * Clean, well-documented source code.
@@ -28,7 +28,15 @@ just blocking the required number of particular seats.
 
 # Notes
 
-The implementation uses embedded H2 DB. The DB is initialized with some data as most of the object creation functionality is only implemented only in the repository layer.
+The implementation is not production-ready and still requires lots of work, but the happy path is working.
+
+The implementation uses:
+  * Spring Boot
+  * Testcontainters
+  * Apache Casandra
+  * RabbitMq
+
+The implementation of the API does not contain exception handling and signaling errors. This time the API documentation is only a small description in the README.md file. 
 
 # Compile and Run
 
@@ -47,13 +55,12 @@ To create the docker image:
 
 To run the docker image
 
-    docker run -p 8080:8080 docker.io/library/ticketservice:0.0.1-SNAPSHOT
+    cd scripts/docker-compose/
+    docker-compose up -d
 
 # API Documentation and Usage
 
-The API documentation can be found in [OpenAPIDocumantation.pdf](./OpenAPIDocumantation.pdf).
-
-The API is also valailable on the http://[server_addr]/swagger-ui/index.html#
+The API documentation is currently just a pointer to the "com.example.ticketstream.functions.dto" package. This package contains the DTO objects the API uses.
 
 ## API Usage for the use case
 
@@ -65,29 +72,21 @@ Movies have Screenings which are in a certain time interval. The use case to res
   * Select a theater
   * See all screenings in the theater showing the movie in the given time interval
   * Select a screening
-  * See available seats (e.g., a1, a2, a3) for the selected screening
+  * Calculate available seats for the selected screening
   * Book one or more of the available seats.
 
-The appropriate API calls are:
-
-  1. MovieController: GET /movie
-  * TheaterController: GET /theater
-  * ScreeningController: GET /screening
-  * SeatController: GET /seat
-  * TicketController: POST /ticket
+The appropriate API usage can be found in the "src/test/java/com.example.ticketstream.functions.ApiUsage.buyTickets" test method.
 
 
 # Implementation
 ## Data Schema
+The schema is a denormalized Cassandra schema in the "com.example.ticketstream.model" package.
   * The Theater class represents a movie theater with only one auditorium. Every Theater has a unique name.
-  * The Seat class represents a seat in a Theater. Every Seat has a unique name in a Theater.
+  * The SeatUDT class represents a seat in a Theater. Every Seat has a unique name in a Theater.
   * The Movie class represents a movie with a unique title.
   * The Licence class represents the time interval a Theater is allowed to show a Movie.
   * The Screening class represents a show of a Movie in a Theater in a certain time interval. Two Screenings in a Theater can not overlap in time. (This constraint is not implemented.)
-  * The Ticket class represents a ticket for a certain Screening and Seat. No two Tickets can exists for the same Screening and Seat.
-
-![Ticket Service Schema](./TicketService.png)
-
+  
 
 
 
